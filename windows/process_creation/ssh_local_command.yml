@@ -1,0 +1,28 @@
+title: Suspicious using LocalCommand parameter of ssh.exe on Windows host
+id: e6897be4-12d6-40ee-b8d4-8c87be4464d2
+status: stable
+description: The rule detects the use of SSH.exe to execute local commands on the host after a successful outgoing SSH connection. Attackers can use the capabilities of a pre-installed ssh client on a windows host to execute payloads on the host immediately after installing an ssh tunnel with the control server.
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Ssh/#execute
+tags:
+  - attack.defense-evasion
+  - attack.t1202
+author: Pavel Kozyaev
+date: 2024-12-06
+logsource:
+    category: process_creation
+    product: windows
+detection:
+  selection_img:
+    - Image|endswith: '\ssh.exe'
+    - CommandLine|contains:
+      - 'ssh.exe'
+      - 'ssh'
+  selection_product:
+    - Product|contains: 'OpenSSH'
+  selection_cmd:
+    - CommandLine|re: '(?i).*?PermitLocalCommand\=yes.*?LocalCommand.*'
+  condition: all of selection_*
+falsepositives:
+    - Legitimate use of SSH command for administrative purposes
+level: high
