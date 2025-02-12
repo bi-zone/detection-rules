@@ -1,0 +1,32 @@
+title: Using ssh.exe for port forwarding on Windows host
+id: f109f1f8-5ccf-4602-be8c-710b60cb1505
+status: stable
+description: This rule detects attempts of using ssh.exe for port forwarding. This activity may indicate the actions of an attacker or malware to establish a network tunnel bypassing security firewall to gain access to certain network segments.
+references:
+    - https://trustedsec.com/blog/the-socks-we-have-at-home
+    - https://redsiege.com/blog/2024/04/sshishing-abusing-shortcut-files-and-the-windows-ssh-client-for-initial-access/
+    - https://medium.com/@sam.rothlisberger/pdf-shortcut-file-with-ssh-executed-dynamic-reverse-socks-proxy-and-password-file-stealer-e747ffbbe387
+tags:
+    - attack.command-and-control
+    - attack.t1090.001
+    - attack.t1572
+    - attack.t1573.002
+author: Pavel Kozyaev
+date: 2024-12-06
+logsource:
+    category: process_creation
+    product: windows
+detection:
+  selection_img:
+    - Image|endswith: '\ssh.exe'
+    - CommandLine|contains:
+      - 'ssh.exe'
+      - 'ssh'
+  selection_product:
+    - Product|contains: 'OpenSSH'
+  selection_cmd_1:
+    - CommandLine|re: '.*-(L|R).*?([0-9]{1,5}\:)?([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|[\w.]+)\:[0-9]{1,5}.*'
+  condition: all of selection_*
+falsepositives:
+    - Legitimate use of SSH command for administrative purposes
+level: medium
