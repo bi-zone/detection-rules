@@ -1,0 +1,34 @@
+title: Starting a ssh.exe process via suspicious shortcut on Windows host
+id: 86366049-29e3-4112-b9ed-e21109dc58ee
+status: stable
+description: The rule detects cases when the ssh.exe process is launched via an lnk file. This scenario can be used by attackers to carry out attacks using modified shortcut files that masquerade as harmless files, such as PDFs.
+references:
+    - https://redsiege.com/blog/2024/04/sshishing-abusing-shortcut-files-and-the-windows-ssh-client-for-initial-access/
+    - https://medium.com/@sam.rothlisberger/pdf-shortcut-file-with-ssh-executed-dynamic-reverse-socks-proxy-and-password-file-stealer-e747ffbbe387
+tags:
+  - attack.defense-evasion
+  - attack.t1027.012
+  - attack.execution
+  - attack.t1204.002
+author: Pavel Kozyaev
+date: 2024-12-06
+logsource:
+    category: process_creation
+    product: windows
+    service: BEDR
+detection:
+  selection_img:
+    - proc_file_path|endswith: '\ssh.exe'
+    - cmdline|contains:
+      - 'ssh.exe'
+      - 'ssh'
+  selection_product:
+    - proc_file_productname|contains: 'OpenSSH'
+  selection_cmd_1:
+    - proc_lnk_path|re: '\S+.*'
+  selection_cmd_2:
+    - cmdline|re: '.*[-a-z0-9._]+\@[-a-z0-9.]+.*'
+  condition: all of selection_*
+falsepositives:
+    - Legitimate use of SSH command for administrative purposes
+level: high
