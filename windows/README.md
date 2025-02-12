@@ -1,1 +1,1 @@
-Collection of Windows Threat detection rules
+Collection of Windows Threat Detection rules
