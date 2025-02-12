@@ -1,0 +1,1 @@
+**A collection of threat detection rules in SIGMA format for Windows**

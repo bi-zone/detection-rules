@@ -1,0 +1,28 @@
+title: Suspicious using ProxyCommand parameter of ssh.exe on Windows host
+id: e1f19d2c-78b7-43d1-ba74-3116f65a31ce
+status: stable
+description: The rule detects the use of the ProxyCommand parameter of the ssh.exe to execute commands on a Windows host. This technique from the LOLBAS project allows an attacker to start a payloads with parents process ssh.exe to bypass various security measures on the host.
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Ssh/#execute
+tags:
+  - attack.defense-evasion
+  - attack.t1202
+author: Pavel Kozyaev
+date: 2024-12-06
+logsource:
+    category: process_creation
+    product: windows
+detection:
+  selection_img:
+    - Image|endswith: '\ssh.exe'
+    - CommandLine|contains:
+      - 'ssh.exe'
+      - 'ssh'
+  selection_product:
+    - Product|contains: 'OpenSSH'
+  selection_cmd_1:
+    - CommandLine|contains: 'ProxyCommand'
+  condition: all of selection_*
+falsepositives:
+    - Legitimate use of SSH command for administrative purposes
+level: medium

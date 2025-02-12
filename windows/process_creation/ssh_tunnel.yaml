@@ -1,0 +1,36 @@
+title: Creation a reverse SOCKS tunnel with ssh.exe on Windows host
+id: e2b5dca4-5678-4abc-9876-fedcba654325
+status: stable
+description: The rule detects the using of ssh.exe to create a reverse socks connection. This activity may indicate an attacker's attempts to create an SSH tunnel to the required organizational server for further horizontal movement within the corporate network or to gain a foothold in the network.
+references:
+    - https://trustedsec.com/blog/the-socks-we-have-at-home
+    - https://redsiege.com/blog/2024/04/sshishing-abusing-shortcut-files-and-the-windows-ssh-client-for-initial-access/
+    - https://medium.com/@sam.rothlisberger/pdf-shortcut-file-with-ssh-executed-dynamic-reverse-socks-proxy-and-password-file-stealer-e747ffbbe387
+tags:
+    - attack.command-and-control
+    - attack.t1090.001
+    - attack.t1572
+    - attack.t1573.002
+author: Pavel Kozyaev
+date: 2024-12-06
+logsource:
+    category: process_creation
+    product: windows
+detection:
+  selection_img:
+    - Image|endswith: '\ssh.exe'
+    - CommandLine|contains:
+      - 'ssh.exe'
+      - 'ssh'
+  selection_product:
+    - Product|contains: 'OpenSSH'
+  selection_cmd_1:
+    - CommandLine|re: '.*-[NR]{1,2}[ ]*[0-9]+ .*'
+  selection_cmd_2:
+    - CommandLine|re: '.* -[^\ ]+?N.*'
+  selection_cmd_3:
+    - CommandLine|re: '.* ([-\w.]+@)?[-\w.]+.*'
+  condition: all of selection_*
+falsepositives:
+    - Legitimate use of SSH command for administrative purposes
+level: high
